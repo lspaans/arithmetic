@@ -13,11 +13,11 @@ __date__ = "2017-12-31"
 __status__ = "Development"
 __version__ = "0.1.0"
 
-MAX_EXERCISES = 10
+MAX_GAME_ROUNDS = 10
 THRESHOLD = 10
 
 
-class ExerciseGenerator(object):
+class Exercise(object):
     """A base class for generating arithmetic exercises"""
     _operator = None
     _operator_method = None
@@ -36,7 +36,7 @@ class ExerciseGenerator(object):
         return self._cache
 
     @property
-    def exercise(self):
+    def details(self):
         """
         Excercise property; used for providing exercise numbers and the
         corresponding result.
@@ -85,22 +85,106 @@ class ExerciseGenerator(object):
         return self._threshold
 
 
-class MultiplicationExercise(ExerciseGenerator):
-    """A class for generating multiplication exercises"""
-    _operator = "x"
-    _operator_method = "__mul__"
-
-
-class AdditionExercise(ExerciseGenerator):
+class Addition(Exercise):
     """A class for generating addition exercises"""
     _operator = "+"
     _operator_method = "__add__"
 
 
-class SubtractionExercise(ExerciseGenerator):
+class Division(Exercise):
+    """A class for generating division exercises"""
+    _operator = "/"
+
+    @property
+    def details(self):
+        """
+        Excercise property; used for providing exercise numbers and the
+        corresponding result.
+
+        Returns list() with 2 int() numbers and int() with result.
+        """
+        num1, num2 = self.number, self.number
+
+        while {num1, num2} in self.cache:
+            num1, num2 = self.number, self.number
+
+        self.cache.append({num1, num2})
+
+        return [num1 * num2, num2], str(num1)
+
+
+class Multiplication(Exercise):
+    """A class for generating multiplication exercises"""
+    _operator = "x"
+    _operator_method = "__mul__"
+
+
+class Subtraction(Exercise):
     """A class for generating subtraction exercises"""
     _operator = "-"
     _operator_method = "__sub__"
+
+
+def do_game_loop(max_game_rounds=MAX_GAME_ROUNDS):
+    """
+    Do main game loop.
+
+    Arguments:
+        max_exercises - int(): number of rounds
+    """
+    game_round, wrong, right = 0, 0, 0
+    exercises = (
+        Addition(),
+        Division(),
+        Subtraction(),
+        Multiplication()
+    )
+
+    while game_round < max_game_rounds:
+        game_round += 1
+        exercise = random.choice(exercises)
+        numbers, result = exercise.details
+        answer = ""
+
+        print(
+            (
+                "\nRonde {game_round}:\n" +
+                "Wat is {num1} {operator} {num2} ?"
+            ).format(
+                game_round=game_round,
+                num1=numbers[0],
+                operator=exercise.operator,
+                num2=numbers[1]
+            )
+        )
+
+        while not re.match(r"^-?\d+$", answer):
+            answer = input(">>> ").strip()
+
+        if answer == str(result):
+            print(get_compliment())
+
+            right += 1
+        else:
+            print("{motivation} Het antwoord is {answer}.".format(
+                motivation=get_motivation(),
+                answer=result
+            ))
+
+            wrong += 1
+
+        print(
+            "[goed : {right}, fout: {wrong}]".format(
+                right=right,
+                wrong=wrong
+            )
+        )
+
+    print(
+        "\n{statistics}".format(
+            statistics=get_statistics(right, max_game_rounds)
+        )
+    )
 
 
 def get_compliment():
@@ -127,61 +211,6 @@ def get_motivation():
         ":-(",
         "Blehhhhhhhhhh!"
     ))
-
-
-def do_game_loop(max_exercises=MAX_EXERCISES):
-    """
-    Do main game loop.
-
-    Arguments:
-        max_exercises - int(): number of rounds
-    """
-    exercise, wrong, right = 0, 0, 0
-    generators = (
-        AdditionExercise(),
-        SubtractionExercise(),
-        MultiplicationExercise()
-    )
-
-    while exercise < max_exercises:
-        exercise += 1
-        generator = random.choice(generators)
-        numbers, result = generator.exercise
-        answer = ""
-
-        print(
-            "\nOpdracht {exercise}:\nWat is {num1} {operator} {num2} ?".format(
-                exercise=exercise,
-                num1=numbers[0],
-                operator=generator.operator,
-                num2=numbers[1]
-            )
-        )
-
-        while not re.match(r"^-?\d+$", answer):
-            answer = input(">>> ").strip()
-
-        if answer == str(result):
-            print(get_compliment())
-
-            right += 1
-        else:
-            print(get_motivation())
-
-            wrong += 1
-
-        print(
-            "[goed : {right}, fout: {wrong}]".format(
-                right=right,
-                wrong=wrong
-            )
-        )
-
-    print(
-        "\n{statistics}".format(
-            statistics=get_statistics(right, max_exercises)
-        )
-    )
 
 
 def get_script_name():
@@ -241,7 +270,7 @@ def main():
 
     try:
         do_game_loop()
-    except KeyboardInterrupt:
+    except (EOFError, KeyboardInterrupt):
         pass
 
     print("\n+++ Tot ziens! +++")
