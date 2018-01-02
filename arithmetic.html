@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+        <script>
+            var MAX_GAME_ROUNDS = 10;
+            var THRESHOLD = 10;
+
+            function Exercise(threshold) {
+                this._cache = [];
+                this._operator = null;
+                this._operator_method = null;
+
+                if (typeof(threshold) === 'undefined') {
+                    this._threshold = THRESHOLD;
+                } else {
+                    this._threshold = threshold;
+                }
+            };
+
+            Exercise.prototype.cache = function() {
+                return this._cache;
+            };
+
+            Exercise.prototype.operator = function() {
+                return this._operator;
+            };
+
+            Exercise.prototype.threshold = function() {
+                return this._threshold;
+            };
+
+            function Addition() {
+                Exercise.call(this);
+
+                this._operator = "+";
+                this._operator_method = "";
+            };
+
+            function Subtraction() {
+                Exercise.call(this);
+
+                this._operator = "-";
+                this._operator_method = "";
+            };
+
+            function Multiplication() {
+                Exercise.call(this);
+
+                this._operator = "x";
+                this._operator_method = "";
+            };
+
+            function Division() {
+                Exercise.call(this);
+
+                this._operator = "/";
+                this._operator_method = "";
+            };
+
+            var init_game = function() {
+                var addition = new Addition();
+
+                console.log("addition operator: " + addition.operator);
+            }
+
+            $(document).ready(init_game);
+        </script>
+        <style>
+            .vet {
+                background: linear-gradient(to right, red , purple);
+                color: white;
+                font-size: 72px;
+                font-weight: bold;
+            }
+        </style>
+        <title>::: Arithmetic :::</title>
+    </head>
+    <body>
+        <span class="vet">Arithmetic</span>
+    </body>
+</html>
