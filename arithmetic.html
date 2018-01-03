@@ -1,82 +1,169 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+        <!-- script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script -->
+        <script src="file:///C:/Users/spaan486/Desktop/jquery.min.js"></script>
         <script>
             var MAX_GAME_ROUNDS = 10;
             var THRESHOLD = 10;
 
-            function Exercise(threshold) {
-                this._cache = [];
-                this._operator = null;
-                this._operator_method = null;
+            Array.prototype.isEqual = function(that) {
+                if (this.length != that.length) {
+                    return false;
+                };
 
-                if (typeof(threshold) === 'undefined') {
-                    this._threshold = THRESHOLD;
-                } else {
-                    this._threshold = threshold;
+                if (this.every(function(v, i) {return v === that[i]})) {
+                    return true;
                 }
+
+                return false;
             };
 
-            Exercise.prototype.cache = function() {
-                return this._cache;
+            var Cache = function() {
+                this.store = [];
             };
 
-            Exercise.prototype.operator = function() {
-                return this._operator;
+            Cache.prototype.contains = function(arr) {
+                for(var i=0; i < this.store.length; i++) {
+                    if (this.store.isEqual(arr)) {
+                        return true;
+                    };
+                };
+
+                return false;
             };
 
-            Exercise.prototype.threshold = function() {
-                return this._threshold;
+            Cache.prototype.append = function(arr) {
+                  if (!this.contains(arr)) {
+                      this.store.push(arr);
+                  };
             };
 
-            function Addition() {
+            var Exercise = function(threshold) {
+                this.cache = new Cache();
+
+                if (typeof(threshold) === "undefined") {
+                    this.threshold = THRESHOLD;
+                } else {
+                    this.threshold = threshold;
+                };
+            };
+
+            Exercise.prototype.get_details = function() {
+                var [num1, num2] = [this.get_number(), this.get_number()];
+
+                while (this.cache.contains([num1, num2].sort())) {
+                    [num1, num2] = [this.get_number(), this.get_number()];
+                };
+
+                this.cache.append([num1, num2].sort());
+
+                if (num2 > num1) {
+                    [num1, num2] = [num2, num1];
+                };
+
+                return [num1, num2, eval(num1 + this.operator + num2)];
+            };
+
+            Exercise.prototype.get_number = function() {
+                  return Math.floor(this.threshold * Math.random()) + 1;
+            };
+
+            function Addition(threshold) {
                 Exercise.call(this);
-
-                this._operator = "+";
-                this._operator_method = "";
+                this.operator = "+";
             };
 
-            function Subtraction() {
+            Addition.prototype = new Exercise();
+
+            function Subtraction(threshold) {
                 Exercise.call(this);
-
-                this._operator = "-";
-                this._operator_method = "";
+                this.operator = "-";
             };
 
-            function Multiplication() {
+            Subtraction.prototype = new Exercise();
+
+            function Multiplication(threshold) {
                 Exercise.call(this);
-
-                this._operator = "x";
-                this._operator_method = "";
+                this.operator = "*";
             };
 
-            function Division() {
+            Multiplication.prototype = new Exercise();
+
+            function Division(threshold) {
                 Exercise.call(this);
-
-                this._operator = "/";
-                this._operator_method = "";
+                this.operator = "/";
             };
 
-            var init_game = function() {
-                var addition = new Addition();
+            Division.prototype = new Exercise();
 
-                console.log("addition operator: " + addition.operator);
-            }
+            Division.prototype.get_details = function() {
+              var [num1, num2] = [this.get_number(), this.get_number()];
 
-            $(document).ready(init_game);
+              while (this.cache.contains([num1, num2].sort())) {
+                  [num1, num2] = [this.get_number(), this.get_number()];
+              };
+
+              this.cache.append([num1, num2].sort());
+
+              if (num2 > num1) {
+                  [num1, num2] = [num2, num1];
+              };
+
+              return [num1 * num2, num2, num1];
+            };
+
+            var do_game_loop = function() {
+                if (typeof(max_game_rounds) === "undefined") {
+                    var max_game_rounds = MAX_GAME_ROUNDS;
+                };
+
+                var [game_round, wrong, right] = [0, 0, 0];
+                var exercises = [
+                  new Addition(),
+                  new Subtraction(),
+                  new Multiplication(),
+                  new Division()
+                ];
+
+                while (game_round < max_game_rounds) {
+                    var exercise = exercises[
+                      Math.floor(exercises.length * Math.random())
+                    ];
+                    var [num1, num2, result] = exercise.get_details();
+
+                    game_round++;
+
+                    console.log("game_round: " + game_round);
+                    console.log("max_game_rounds: " + max_game_rounds);
+                    console.log("num1: " + num1);
+                    console.log("num2: " + num2);
+                    console.log("operator: " + exercise.operator);
+                    console.log("result: " + result);
+
+                };
+            };
+
+            $(document).ready(do_game_loop);
         </script>
         <style>
-            .vet {
-                background: linear-gradient(to right, red , purple);
-                color: white;
-                font-size: 72px;
-                font-weight: bold;
+            body {
+              background: linear-gradient(to right, purple , red);
+            }
+            .title {
+              border: 0px solid #ffffff;
+              font-size: 72px;
+              padding: 10px;
+            }
+            .colored {
+              background: linear-gradient(to right, blue , yellow);
+              color: white;
+              font-weight: bold;
             }
         </style>
         <title>::: Arithmetic :::</title>
     </head>
     <body>
-        <span class="vet">Arithmetic</span>
+        <span class="title colored">Arithmetic</span>
     </body>
 </html>
