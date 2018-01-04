@@ -123,15 +123,12 @@
                 percentage_right = Math.round((100 / max_game_rounds) * right);
 
                 var overview = (
-                    "Je hebt " + right + " van de " +
+                    "Je hebt er " + right + " van de " +
                     max_game_rounds + " goed!"
                 );
 
                 if (percentage_right == 100) {
-                    return (
-                        "Wat fantastisch! " +
-                        "Je hebt ALLES goed! Gefeliciteerd Slimpie!"
-                    );
+                    return "Fantastisch! Je hebt ALLES goed Slimpie!";
                 } else if (percentage_right > 80) {
                     return "Supernetjes! " + overview;
                 } else if (percentage_right > 60) {
@@ -139,16 +136,10 @@
                 } else if (percentage_right > 40) {
                     return "Helaas, net geen voldoende! :-( " + overview;
                 } else if (percentage_right > 20) {
-                    return (
-                        "Je hebt je best gedaan! Volgende keer beter! " +
-                        overview
-                    );
+                    return "Volgende keer beter! " + overview;
                 };
 
-                return (
-                    "Jammer, je hebt geen van de antwoorden goed. " +
-                    "Blijf oefenen!"
-                );
+                return "Jammer, niets goed. Blijf oefenen!";
             }
 
             var do_round = function() {
@@ -252,7 +243,7 @@
                 };
 
                 $("<span/>", {
-                    "class": "title colored",
+                    "class": "box title",
                     "text": "Rekenen"
                 }).appendTo("body");
 
@@ -282,14 +273,11 @@
         <style>
             body {
                 background: linear-gradient(to right, purple , red);
-            }
-            .colored {
-                background: linear-gradient(to right, blue , yellow);
-                color: white;
-                font-weight: bold;
+                width: 1280px;
             }
             .box {
                 background: rgb(0, 0 ,0);
+                border-radius: 15px;
                 border: 2px solid rgb(255, 255, 255);
                 color: rgb(255, 255, 255);
                 display: block;
@@ -299,21 +287,28 @@
                 padding: 1em;
             }
             .exercise_button {
+                color: rgb(0, 0, 255);
+                font-family: "Arial Black";
+                text-shadow: 2px 2px rgb(160, 160, 160);
                 font-size: 24pt;
                 margin: 0% 0% 0% 5%;
+                float: right;
             }
             .exercise_input {
                 border: 2px solid rgb(255, 255, 255);
+                color: rgb(80, 0, 80);
                 font-family: "Arial Black";
                 font-size: 24pt;
-                margin: 0% 0% 0% 5%;
+                margin-left: 5%;
+                padding-left: 1%;
+                width: 30%;
             }
             .title {
-                border: 2px solid rgb(255, 255, 255);
-                display: block;
-                font-family: "Arial Black";
+                background: linear-gradient(to right, blue , yellow);
+                border-radius: 15px;
+                color: white;
+                font-weight: bold;
                 font-size: 48pt;
-                margin: 0% 5% 5% 5%;
                 padding: 1%;
                 text-align: center;
             }
