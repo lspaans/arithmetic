@@ -119,36 +119,91 @@
                 return [num1 * num2, num2, num1];
             };
 
+            var get_motivational_message = function() {
+                percentage_right = Math.round((100 / max_game_rounds) * right);
+
+                var overview = (
+                    "Je hebt " + right + " van de " +
+                    max_game_rounds + " goed!"
+                );
+
+                if (percentage_right == 100) {
+                    return (
+                        "Wat fantastisch! " +
+                        "Je hebt ALLES goed! Gefeliciteerd Slimpie!"
+                    );
+                } else if (percentage_right > 80) {
+                    return "Supernetjes! " + overview;
+                } else if (percentage_right > 60) {
+                    return "Goed gedaan hoor! " + overview;
+                } else if (percentage_right > 40) {
+                    return "Helaas, net geen voldoende! :-( " + overview;
+                } else if (percentage_right > 20) {
+                    return (
+                        "Je hebt je best gedaan! Volgende keer beter! " +
+                        overview
+                    );
+                };
+
+                return (
+                    "Jammer, je hebt geen van de antwoorden goed. " +
+                    "Blijf oefenen!"
+                );
+            }
+
             var do_round = function() {
-                if (game_round == 0) {
-                  $("<div/>", {
-                      "class": "statistics_box",
-                      "id": "statistics",
-                      "name": "statistics"
-                  }).appendTo("body");
+                if (
+                    game_round > 0 &&
+                    right + wrong < max_game_rounds
+                ) {
+                    if ($("input[name='answer']:last").val() == result) {
+                        right++;
+                    } else {
+                        wrong++;
+                    };
                 };
 
                 if (game_round >= max_game_rounds) {
-                    $("button[name='submit']").hide();
+                    $("#statistics").text(
+                        "Je hebt " + right + " goed en " + wrong + " fout."
+                    );
+
+                    $("div[name='round']:last").hide();
+
+                    $("<div/>", {
+                        "class": "box",
+                        "id": "score",
+                        "name": "score",
+                        text: get_motivational_message()
+                    }).appendTo("body");
+
+                    $("<button/>", {
+                        "class": "exercise_button",
+                        "name": "reload",
+                        "onClick": "window.location.reload();",
+                        "text": "Opnieuw"
+                    }).appendTo("div[name='score']");
 
                     return;
                 };
 
-                var exercise = exercises[
-                    Math.floor(exercises.length * Math.random())
-                ];
-                [num1, num2, result] = exercise.get_details();
-
                 game_round++;
 
                 $("#statistics").text(
-                    "ronde " + game_round + " van " + max_game_rounds
+                    "Ronde " + game_round + " van " + max_game_rounds + " — " +
+                    "je hebt " + right + " goed en " + wrong + " fout."
                 );
+
+                var exercise = exercises[
+                    Math.floor(exercises.length * Math.random())
+                ];
+
+                [num1, num2, result] = exercise.get_details();
 
                 $("div[name='round']:last").hide();
 
                 $("<div/>", {
-                    "class": "exercise_box",
+                    "class": "box",
                     "id": "round" + game_round,
                     "name": "round",
                     text: (
@@ -164,18 +219,42 @@
                     "name": "answer"
                 }).appendTo("div[name='round']:last");
 
+                $("input[name='answer']:last").on('keyup', function (event) {
+                    if (!has_only_numbers()) {
+                        return;
+                    };
+
+                    if (event.keyCode == 13) {
+                        do_round();
+                    };
+                });
+
+                $("input[name='answer']:last").focus();
+
                 $("<button/>", {
                     "class": "exercise_button",
                     "name": "submit",
-                    "onClick": "do_round()",
-                    "text": "OK"
+                    "text": "Controleer"
                 }).appendTo("div[name='round']:last");
+
+                $("button[name='submit']").on('click', function () {
+                    if (!has_only_numbers()) {
+                        return;
+                    };
+
+                    do_round();
+                });
             };
 
             var init_game = function() {
                 if (typeof(max_game_rounds) === "undefined") {
                     max_game_rounds = MAX_GAME_ROUNDS;
                 };
+
+                $("<span/>", {
+                    "class": "title colored",
+                    "text": "Rekenen"
+                }).appendTo("body");
 
                 [game_round, wrong, right] = [0, 0, 0];
                 exercises = [
@@ -185,7 +264,17 @@
                     new Division()
                 ];
 
+                $("<div/>", {
+                    "class": "box",
+                    "id": "statistics",
+                    "name": "statistics"
+                }).appendTo("body");
+
                 do_round();
+            };
+
+            var has_only_numbers = function() {
+                return $("input[name='answer']:last").val().match(/^\d+$/);
             };
 
             $(document).ready(init_game);
@@ -199,7 +288,7 @@
                 color: white;
                 font-weight: bold;
             }
-            .exercise_box {
+            .box {
                 background: rgb(0, 0 ,0);
                 border: 2px solid rgb(255, 255, 255);
                 color: rgb(255, 255, 255);
@@ -215,18 +304,9 @@
             }
             .exercise_input {
                 border: 2px solid rgb(255, 255, 255);
-                font-size: 24pt;
-                margin: 0% 0% 0% 5%;
-            }
-            .statistics_box {
-                background: rgb(0, 0 ,0);
-                border: 2px solid rgb(255, 255, 255);
-                color: rgb(255, 255, 255);
-                display: block;
                 font-family: "Arial Black";
                 font-size: 24pt;
-                margin: 0% 5% 5% 5%;
-                padding: 1em;
+                margin: 0% 0% 0% 5%;
             }
             .title {
                 border: 2px solid rgb(255, 255, 255);
@@ -240,7 +320,5 @@
         </style>
         <title>::: Arithmetic :::</title>
     </head>
-    <body>
-        <span class="title colored">Rekenen</span>
-    </body>
+    <body/>
 </html>
