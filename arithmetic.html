@@ -169,7 +169,7 @@
                     }).appendTo("body");
 
                     $("<button/>", {
-                        "class": "exercise_button",
+                        "class": "button",
                         "name": "reload",
                         "onClick": "window.location.reload();",
                         "text": "Opnieuw"
@@ -205,7 +205,7 @@
                 }).appendTo("body");
 
                 $("<input/>", {
-                    "class": "exercise_input",
+                    "class": "input",
                     "id": "answer" + game_round,
                     "name": "answer"
                 }).appendTo("div[name='round']:last");
@@ -223,7 +223,7 @@
                 $("input[name='answer']:last").focus();
 
                 $("<button/>", {
-                    "class": "exercise_button",
+                    "class": "button",
                     "name": "submit",
                     "text": "Controleer"
                 }).appendTo("div[name='round']:last");
@@ -286,7 +286,8 @@
                 margin: 0% 5% 5% 5%;
                 padding: 1em;
             }
-            .exercise_button {
+            .button {
+                background: rgb(255, 255, 0);
                 color: rgb(0, 0, 255);
                 font-family: "Arial Black";
                 text-shadow: 2px 2px rgb(160, 160, 160);
@@ -294,7 +295,7 @@
                 margin: 0% 0% 0% 5%;
                 float: right;
             }
-            .exercise_input {
+            .input {
                 border: 2px solid rgb(255, 255, 255);
                 color: rgb(80, 0, 80);
                 font-family: "Arial Black";
@@ -313,7 +314,7 @@
                 text-align: center;
             }
         </style>
-        <title>::: Arithmetic :::</title>
+        <title>::: Rekenen :::</title>
     </head>
     <body/>
 </html>
