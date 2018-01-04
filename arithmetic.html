@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <!-- script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script -->
-        <script src="file:///C:/Users/spaan486/Desktop/jquery.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
         <script>
-            var MAX_GAME_ROUNDS = 10;
-            var THRESHOLD = 10;
+            var [MAX_GAME_ROUNDS, THRESHOLD] = [10, 10];
+
+            var [max_game_rounds, exercises] = [MAX_GAME_ROUNDS, []];
+            var [wrong, right, game_round] = [0, 0, 0];
+            var [num1, num2, result] = [null, null, null];
 
             Array.prototype.isEqual = function(that) {
                 if (this.length != that.length) {
@@ -14,7 +16,7 @@
 
                 if (this.every(function(v, i) {return v === that[i]})) {
                     return true;
-                }
+                };
 
                 return false;
             };
@@ -34,9 +36,9 @@
             };
 
             Cache.prototype.append = function(arr) {
-                  if (!this.contains(arr)) {
-                      this.store.push(arr);
-                  };
+                if (!this.contains(arr)) {
+                    this.store.push(arr);
+                };
             };
 
             var Exercise = function(threshold) {
@@ -72,6 +74,7 @@
             function Addition(threshold) {
                 Exercise.call(this);
                 this.operator = "+";
+                this.display_operator = "+";
             };
 
             Addition.prototype = new Exercise();
@@ -79,6 +82,7 @@
             function Subtraction(threshold) {
                 Exercise.call(this);
                 this.operator = "-";
+                this.display_operator = "-";
             };
 
             Subtraction.prototype = new Exercise();
@@ -86,6 +90,7 @@
             function Multiplication(threshold) {
                 Exercise.call(this);
                 this.operator = "*";
+                this.display_operator = "x";
             };
 
             Multiplication.prototype = new Exercise();
@@ -93,77 +98,149 @@
             function Division(threshold) {
                 Exercise.call(this);
                 this.operator = "/";
+                this.display_operator = "/";
             };
 
             Division.prototype = new Exercise();
 
             Division.prototype.get_details = function() {
-              var [num1, num2] = [this.get_number(), this.get_number()];
+                var [num1, num2] = [this.get_number(), this.get_number()];
 
-              while (this.cache.contains([num1, num2].sort())) {
-                  [num1, num2] = [this.get_number(), this.get_number()];
-              };
-
-              this.cache.append([num1, num2].sort());
-
-              if (num2 > num1) {
-                  [num1, num2] = [num2, num1];
-              };
-
-              return [num1 * num2, num2, num1];
-            };
-
-            var do_game_loop = function() {
-                if (typeof(max_game_rounds) === "undefined") {
-                    var max_game_rounds = MAX_GAME_ROUNDS;
+                while (this.cache.contains([num1, num2].sort())) {
+                    [num1, num2] = [this.get_number(), this.get_number()];
                 };
 
-                var [game_round, wrong, right] = [0, 0, 0];
-                var exercises = [
-                  new Addition(),
-                  new Subtraction(),
-                  new Multiplication(),
-                  new Division()
+                this.cache.append([num1, num2].sort());
+
+                if (num2 > num1) {
+                    [num1, num2] = [num2, num1];
+                };
+
+                return [num1 * num2, num2, num1];
+            };
+
+            var do_round = function() {
+                if (game_round == 0) {
+                  $("<div/>", {
+                      "class": "statistics_box",
+                      "id": "statistics",
+                      "name": "statistics"
+                  }).appendTo("body");
+                };
+
+                if (game_round >= max_game_rounds) {
+                    $("button[name='submit']").hide();
+
+                    return;
+                };
+
+                var exercise = exercises[
+                    Math.floor(exercises.length * Math.random())
+                ];
+                [num1, num2, result] = exercise.get_details();
+
+                game_round++;
+
+                $("#statistics").text(
+                    "ronde " + game_round + " van " + max_game_rounds
+                );
+
+                $("div[name='round']:last").hide();
+
+                $("<div/>", {
+                    "class": "exercise_box",
+                    "id": "round" + game_round,
+                    "name": "round",
+                    text: (
+                        "Hoeveel is " +
+                        num1 + " " + exercise.display_operator + " " + num2 +
+                        " ?"
+                    )
+                }).appendTo("body");
+
+                $("<input/>", {
+                    "class": "exercise_input",
+                    "id": "answer" + game_round,
+                    "name": "answer"
+                }).appendTo("div[name='round']:last");
+
+                $("<button/>", {
+                    "class": "exercise_button",
+                    "name": "submit",
+                    "onClick": "do_round()",
+                    "text": "OK"
+                }).appendTo("div[name='round']:last");
+            };
+
+            var init_game = function() {
+                if (typeof(max_game_rounds) === "undefined") {
+                    max_game_rounds = MAX_GAME_ROUNDS;
+                };
+
+                [game_round, wrong, right] = [0, 0, 0];
+                exercises = [
+                    new Addition(),
+                    new Subtraction(),
+                    new Multiplication(),
+                    new Division()
                 ];
 
-                while (game_round < max_game_rounds) {
-                    var exercise = exercises[
-                      Math.floor(exercises.length * Math.random())
-                    ];
-                    var [num1, num2, result] = exercise.get_details();
-
-                    game_round++;
-
-                    console.log("game_round: " + game_round);
-                    console.log("max_game_rounds: " + max_game_rounds);
-                    console.log("num1: " + num1);
-                    console.log("num2: " + num2);
-                    console.log("operator: " + exercise.operator);
-                    console.log("result: " + result);
-
-                };
+                do_round();
             };
 
-            $(document).ready(do_game_loop);
+            $(document).ready(init_game);
         </script>
         <style>
             body {
-              background: linear-gradient(to right, purple , red);
-            }
-            .title {
-              border: 0px solid #ffffff;
-              font-size: 72px;
-              padding: 10px;
+                background: linear-gradient(to right, purple , red);
             }
             .colored {
-              background: linear-gradient(to right, blue , yellow);
-              color: white;
-              font-weight: bold;
+                background: linear-gradient(to right, blue , yellow);
+                color: white;
+                font-weight: bold;
+            }
+            .exercise_box {
+                background: rgb(0, 0 ,0);
+                border: 2px solid rgb(255, 255, 255);
+                color: rgb(255, 255, 255);
+                display: block;
+                font-family: "Arial Black";
+                font-size: 24pt;
+                margin: 0% 5% 5% 5%;
+                padding: 1em;
+            }
+            .exercise_button {
+                font-size: 24pt;
+                margin: 0% 0% 0% 5%;
+            }
+            .exercise_input {
+                border: 2px solid rgb(255, 255, 255);
+                font-size: 24pt;
+                margin: 0% 0% 0% 5%;
+            }
+            .statistics_box {
+                background: rgb(0, 0 ,0);
+                border: 2px solid rgb(255, 255, 255);
+                color: rgb(255, 255, 255);
+                display: block;
+                font-family: "Arial Black";
+                font-size: 24pt;
+                margin: 0% 5% 5% 5%;
+                padding: 1em;
+            }
+            .title {
+                border: 2px solid rgb(255, 255, 255);
+                display: block;
+                font-family: "Arial Black";
+                font-size: 48pt;
+                margin: 0% 5% 5% 5%;
+                padding: 1%;
+                text-align: center;
             }
         </style>
         <title>::: Arithmetic :::</title>
     </head>
     <body>
-        <span class="title colored">Arithmetic</span>
+        <span class="title colored">Rekenen</span>
     </body>
 </html>
